@@ -14,6 +14,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .container {
@@ -42,6 +43,7 @@ img {
     display: flex;
     gap: 25px;
     justify-content: center;
+    position: relative;
 }
 
 button {
@@ -51,23 +53,60 @@ button {
     border: none;
     cursor: pointer;
     font-weight: 600;
-    transition: 0.25s;
+    transition: transform 0.3s ease;
 }
 
 #yes {
     background: linear-gradient(135deg,#ff5f7e,#ff2f68);
     color: white;
     box-shadow: 0 10px 25px rgba(255,0,90,.4);
-}
-
-#yes:hover {
-    transform: scale(1.1);
+    z-index: 1; /* parte sopra il NO */
 }
 
 #no {
     background: #eee;
     color: #444;
+    z-index: 0;
+    position: relative; /* così il YES lo sovrasta */
+}
+
+/* Cuori */
+.heart {
     position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    transform: rotate(45deg);
+    top: 50%;
+    left: 50%;
+    z-index: 10;
+    pointer-events: none;
+    animation: float 1s ease-out forwards;
+}
+
+.heart:before,
+.heart:after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+}
+
+.heart:before {
+    top: -10px;
+    left: 0;
+}
+
+.heart:after {
+    left: 10px;
+    top: 0;
+}
+
+@keyframes float {
+    0% { transform: translate(0,0) rotate(45deg); opacity:1; }
+    100% { transform: translate(0,-100px) rotate(45deg); opacity:0; }
 }
 </style>
 </head>
@@ -89,14 +128,39 @@ const yes = document.getElementById("yes");
 
 let scale = 1;
 
+// Funzione per creare cuori
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    const rect = yes.getBoundingClientRect();
+    heart.style.left = (rect.left + rect.width/2) + 'px';
+    heart.style.top = (rect.top + rect.height/2) + 'px';
+    document.body.appendChild(heart);
+    setTimeout(() => {
+        heart.remove();
+    }, 1000);
+}
+
+// Quando tocca NO
 no.addEventListener("click", () => {
+    // Ingrandisci il tasto SI
     scale += 0.25;
     yes.style.transform = `scale(${scale})`;
+    yes.style.zIndex = 2;
+
+    // Crea un cuore
+    createHeart();
+
+    // Vibrazione se supportata
+    if (navigator.vibrate) {
+        navigator.vibrate(100);
+    }
 });
 
-document.getElementById("yes").onclick = () => {
+// Quando tocca SI
+yes.addEventListener("click", () => {
     window.location.href = "date.html";
-};
+});
 </script>
 
 </body>
