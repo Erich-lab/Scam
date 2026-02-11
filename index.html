@@ -60,7 +60,7 @@ button {
     background: linear-gradient(135deg,#ff5f7e,#ff2f68);
     color: white;
     box-shadow: 0 10px 25px rgba(255,0,90,.4);
-    z-index: 1; /* parte sopra il NO */
+    z-index: 1; /* sopra NO */
 }
 
 #no {
@@ -77,8 +77,6 @@ button {
     height: 20px;
     background: red;
     transform: rotate(45deg);
-    top: 50%;
-    left: 50%;
     z-index: 10;
     pointer-events: none;
     animation: float 1s ease-out forwards;
@@ -94,15 +92,8 @@ button {
     border-radius: 50%;
 }
 
-.heart:before {
-    top: -10px;
-    left: 0;
-}
-
-.heart:after {
-    left: 10px;
-    top: 0;
-}
+.heart:before { top: -10px; left: 0; }
+.heart:after { left: 10px; top: 0; }
 
 @keyframes float {
     0% { transform: translate(0,0) rotate(45deg); opacity:1; }
@@ -125,43 +116,52 @@ button {
 <script>
 const no = document.getElementById("no");
 const yes = document.getElementById("yes");
-
 let scale = 1;
 
-// Funzione per creare cuori
-function createHeart() {
+// funzione per creare un cuore
+function createHeart(x, y) {
     const heart = document.createElement('div');
     heart.classList.add('heart');
-    const rect = yes.getBoundingClientRect();
-    heart.style.left = (rect.left + rect.width/2) + 'px';
-    heart.style.top = (rect.top + rect.height/2) + 'px';
+    heart.style.left = x + 'px';
+    heart.style.top = y + 'px';
     document.body.appendChild(heart);
-    setTimeout(() => {
-        heart.remove();
-    }, 1000);
+    setTimeout(() => heart.remove(), 1000);
 }
 
-// Quando tocca NO
-no.addEventListener("click", () => {
-    // Ingrandisci il tasto SI
+// quando clicca NO
+no.addEventListener("click", (e) => {
     scale += 0.25;
     yes.style.transform = `scale(${scale})`;
     yes.style.zIndex = 2;
 
-    // Crea un cuore
-    createHeart();
+    // cuore al centro del SI
+    const rect = yes.getBoundingClientRect();
+    const centerX = rect.left + rect.width/2 - 10; // -10 per centrare cuore
+    const centerY = rect.top + rect.height/2 - 10;
+    createHeart(centerX, centerY);
 
-    // Vibrazione se supportata
+    // vibrazione su mobile
     if (navigator.vibrate) {
         navigator.vibrate(100);
     }
 });
 
-// Quando tocca SI
+// quando clicca SI
 yes.addEventListener("click", () => {
-    window.location.href = "date.html";
+    const rect = yes.getBoundingClientRect();
+    // piccolo fuoco d'artificio di cuori
+    for (let i=0;i<15;i++){
+        const x = rect.left + Math.random()*rect.width - 10;
+        const y = rect.top + Math.random()*rect.height - 10;
+        createHeart(x, y);
+    }
+    // piccola pausa per far vedere i cuori
+    setTimeout(() => {
+        window.location.href = "date.html";
+    }, 600);
 });
 </script>
 
 </body>
 </html>
+
